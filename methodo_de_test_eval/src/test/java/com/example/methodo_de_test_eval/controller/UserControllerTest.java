@@ -1,6 +1,8 @@
 package com.example.methodo_de_test_eval.controller;
 
-import com.example.methodo_de_test_eval.entity.User;
+import com.example.methodo_de_test_eval.dto.CreateUserDto;
+import com.example.methodo_de_test_eval.dto.UpdateUserDto;
+import com.example.methodo_de_test_eval.dto.UserDto;
 import com.example.methodo_de_test_eval.exception.DataIntegrityViolationException;
 import com.example.methodo_de_test_eval.exception.ObjectNotFoundException;
 import com.example.methodo_de_test_eval.service.UserService;
@@ -41,31 +43,27 @@ class UserControllerTest {
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
 
-    private User validUser;
-    private User anotherUser;
+    private UserDto validUserDto;
+    private UserDto anotherUserDto;
+    private CreateUserDto createUserDto;
+    private UpdateUserDto updateUserDto;
 
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
         objectMapper = new ObjectMapper();
 
-        validUser = new User();
-        validUser.setId(1L);
-        validUser.setName("John Doe");
-        validUser.setEmail("john.doe@example.com");
-        validUser.setPassword("password123");
+        validUserDto = new UserDto(1L, "John Doe", "john.doe@example.com");
+        anotherUserDto = new UserDto(2L, "Jane Smith", "jane.smith@example.com");
 
-        anotherUser = new User();
-        anotherUser.setId(2L);
-        anotherUser.setName("Jane Smith");
-        anotherUser.setEmail("jane.smith@example.com");
-        anotherUser.setPassword("password456");
+        createUserDto = new CreateUserDto("John Doe", "john.doe@example.com", "password123");
+        updateUserDto = new UpdateUserDto("John Updated", "john.updated@example.com", "newpassword123");
     }
 
     @Test
     @DisplayName("Test GET /users - Doit retourner la liste de tous les utilisateurs")
     void getAllUsers_ShouldReturnAllUsers() throws Exception {
-        List<User> users = Arrays.asList(validUser, anotherUser);
+        List<UserDto> users = Arrays.asList(validUserDto, anotherUserDto);
         when(userService.getAllUsers()).thenReturn(users);
 
         mockMvc.perform(get("/users"))
@@ -84,7 +82,7 @@ class UserControllerTest {
     @Test
     @DisplayName("Test GET /users/{id} - Doit retourner un utilisateur existant")
     void getUserById_WithValidId_ShouldReturnUser() throws Exception {
-        when(userService.getUserById(1L)).thenReturn(Optional.of(validUser));
+        when(userService.getUserById(1L)).thenReturn(Optional.of(validUserDto));
 
         mockMvc.perform(get("/users/1"))
                 .andExpect(status().isOk())
@@ -110,85 +108,79 @@ class UserControllerTest {
     @Test
     @DisplayName("Test POST /users - Doit créer un utilisateur valide")
     void createUser_WithValidUser_ShouldCreateUser() throws Exception {
-        when(userService.createUser(any(User.class))).thenReturn(validUser);
+        when(userService.createUser(any(CreateUserDto.class))).thenReturn(validUserDto);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validUser)))
+                        .content(objectMapper.writeValueAsString(createUserDto)))
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("John Doe"))
                 .andExpect(jsonPath("$.email").value("john.doe@example.com"));
 
-        verify(userService, times(1)).createUser(any(User.class));
+        verify(userService, times(1)).createUser(any(CreateUserDto.class));
     }
 
     @Test
     @DisplayName("Test POST /users - Doit retourner 409 pour un email déjà existant")
     void createUser_WithExistingEmail_ShouldReturn409() throws Exception {
-        when(userService.createUser(any(User.class)))
+        when(userService.createUser(any(CreateUserDto.class)))
                 .thenThrow(new DataIntegrityViolationException("Un utilisateur avec cet email existe déjà"));
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validUser)))
+                        .content(objectMapper.writeValueAsString(createUserDto)))
                 .andExpect(status().isConflict())
                 .andExpect(content().string("Un utilisateur avec cet email existe déjà"));
 
-        verify(userService, times(1)).createUser(any(User.class));
+        verify(userService, times(1)).createUser(any(CreateUserDto.class));
     }
 
     @Test
     @DisplayName("Test POST /users - Doit retourner 400 pour des données invalides")
     void createUser_WithInvalidData_ShouldReturn400() throws Exception {
-        User invalidUser = new User();
-        invalidUser.setName("");
-        invalidUser.setEmail("invalid-email");
-        invalidUser.setPassword("ab");
+        CreateUserDto invalidUser = new CreateUserDto("", "invalid-email", "ab");
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidUser)))
                 .andExpect(status().isBadRequest());
 
-        verify(userService, never()).createUser(any(User.class));
+        verify(userService, never()).createUser(any(CreateUserDto.class));
     }
 
     @Test
     @DisplayName("Test PUT /users/{id} - Doit mettre à jour un utilisateur existant")
     void updateUser_WithValidUser_ShouldUpdateUser() throws Exception { 
-        User updatedUser = new User();
-        updatedUser.setName("John Updated");
-        updatedUser.setEmail("john.updated@example.com");
-        updatedUser.setPassword("newpassword123");
+        UserDto updatedUserDto = new UserDto(1L, "John Updated", "john.updated@example.com");
 
-        when(userService.updateUser(anyLong(), any(User.class))).thenReturn(updatedUser);
+        when(userService.updateUser(anyLong(), any(UpdateUserDto.class))).thenReturn(updatedUserDto);
 
         mockMvc.perform(put("/users/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedUser)))
+                        .content(objectMapper.writeValueAsString(updateUserDto)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name").value("John Updated"))
                 .andExpect(jsonPath("$.email").value("john.updated@example.com"));
 
-        verify(userService, times(1)).updateUser(1L, updatedUser);
+        verify(userService, times(1)).updateUser(1L, updateUserDto);
     }
 
     @Test
     @DisplayName("Test PUT /users/{id} - Doit retourner 404 pour un utilisateur inexistant")
     void updateUser_WithNonExistentUser_ShouldReturn404() throws Exception {
-        when(userService.updateUser(anyLong(), any(User.class)))
+        when(userService.updateUser(anyLong(), any(UpdateUserDto.class)))
                 .thenThrow(new ObjectNotFoundException("Utilisateur non trouvé avec l'ID: 999"));
 
         mockMvc.perform(put("/users/999")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(validUser)))
+                        .content(objectMapper.writeValueAsString(updateUserDto)))
                 .andExpect(status().isNotFound())
                 .andExpect(content().string("Utilisateur non trouvé avec l'ID: 999"));
 
-        verify(userService, times(1)).updateUser(999L, validUser);
+        verify(userService, times(1)).updateUser(999L, updateUserDto);
     }
 
     @Test
@@ -218,7 +210,7 @@ class UserControllerTest {
     @Test
     @DisplayName("Test GET /users/email/{email} - Doit retourner un utilisateur par email")
     void getUserByEmail_WithValidEmail_ShouldReturnUser() throws Exception {
-        when(userService.getUserByEmail("john.doe@example.com")).thenReturn(Optional.of(validUser));
+        when(userService.getUserByEmail("john.doe@example.com")).thenReturn(Optional.of(validUserDto));
 
         mockMvc.perform(get("/users/email/john.doe@example.com"))
                 .andExpect(status().isOk())

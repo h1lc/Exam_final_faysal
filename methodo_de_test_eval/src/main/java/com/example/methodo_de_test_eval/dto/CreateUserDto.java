@@ -1,51 +1,33 @@
-package com.example.methodo_de_test_eval.entity;
+package com.example.methodo_de_test_eval.dto;
 
-import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.Data;
 import java.util.Objects;
 
 
-@Entity
-@Table(name = "users")
-@Data
-public class User {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class CreateUserDto {
 
     @NotBlank(message = "Le nom est obligatoire")
-    @Column(name = "name", nullable = false)
     private String name;
 
     @NotBlank(message = "L'email est obligatoire")
     @Email(message = "L'email doit être valide")
     @Pattern(regexp = ".*\\.com$", message = "L'email doit se terminer par .com")
-    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @NotBlank(message = "Le mot de passe est obligatoire")
     @Size(min = 3, message = "Le mot de passe doit contenir au moins 3 caractères")
-    @Column(name = "password", nullable = false)
     private String password;
 
-    public User() {
+
+    public CreateUserDto() {
     }
 
-    public User(String name, String email, String password) {
+    public CreateUserDto(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
@@ -71,4 +53,27 @@ public class User {
         this.password = password;
     }
 
+    @Override
+    public String toString() {
+        return "CreateUserDto{" +
+                "name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='[PROTECTED]'" +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CreateUserDto that = (CreateUserDto) o;
+        return Objects.equals(name, that.name) && 
+               Objects.equals(email, that.email) && 
+               Objects.equals(password, that.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, email, password);
+    }
 } 

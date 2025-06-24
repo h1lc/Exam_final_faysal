@@ -1,5 +1,8 @@
 package com.example.methodo_de_test_eval.service;
 
+import com.example.methodo_de_test_eval.dto.CreateUserDto;
+import com.example.methodo_de_test_eval.dto.UpdateUserDto;
+import com.example.methodo_de_test_eval.dto.UserDto;
 import com.example.methodo_de_test_eval.entity.User;
 import com.example.methodo_de_test_eval.exception.DataIntegrityViolationException;
 import com.example.methodo_de_test_eval.exception.ObjectNotFoundException;
@@ -35,6 +38,10 @@ class UserServiceTest {
 
     private User validUser;
     private User anotherUser;
+    private UserDto validUserDto;
+    private UserDto anotherUserDto;
+    private CreateUserDto createUserDto;
+    private UpdateUserDto updateUserDto;
 
     @BeforeEach
     void setUp() {
@@ -49,6 +56,12 @@ class UserServiceTest {
         anotherUser.setName("Jane Smith");
         anotherUser.setEmail("jane.smith@example.com");
         anotherUser.setPassword("password456");
+
+        validUserDto = new UserDto(1L, "John Doe", "john.doe@example.com");
+        anotherUserDto = new UserDto(2L, "Jane Smith", "jane.smith@example.com");
+
+        createUserDto = new CreateUserDto("John Doe", "john.doe@example.com", "password123");
+        updateUserDto = new UpdateUserDto("John Updated", "john.updated@example.com", "newpassword123");
     }
 
     @Test
@@ -57,11 +70,13 @@ class UserServiceTest {
         List<User> expectedUsers = Arrays.asList(validUser, anotherUser);
         when(userRepository.findAll()).thenReturn(expectedUsers);
 
-        List<User> actualUsers = userService.getAllUsers();
+        List<UserDto> actualUsers = userService.getAllUsers();
 
         assertNotNull(actualUsers);
         assertEquals(2, actualUsers.size());
-        assertEquals(expectedUsers, actualUsers);
+        assertEquals(validUserDto.getId(), actualUsers.get(0).getId());
+        assertEquals(validUserDto.getName(), actualUsers.get(0).getName());
+        assertEquals(validUserDto.getEmail(), actualUsers.get(0).getEmail());
         verify(userRepository, times(1)).findAll();
     }
 
@@ -70,10 +85,12 @@ class UserServiceTest {
     void getUserById_WithValidId_ShouldReturnUser() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(validUser));
 
-        Optional<User> result = userService.getUserById(1L);
+        Optional<UserDto> result = userService.getUserById(1L);
 
         assertTrue(result.isPresent());
-        assertEquals(validUser, result.get());
+        assertEquals(validUserDto.getId(), result.get().getId());
+        assertEquals(validUserDto.getName(), result.get().getName());
+        assertEquals(validUserDto.getEmail(), result.get().getEmail());
         verify(userRepository, times(1)).findById(1L);
     }
 
@@ -82,7 +99,7 @@ class UserServiceTest {
     void getUserById_WithInvalidId_ShouldReturnEmpty() {
         when(userRepository.findById(999L)).thenReturn(Optional.empty());
 
-        Optional<User> result = userService.getUserById(999L);
+        Optional<UserDto> result = userService.getUserById(999L);
 
         assertFalse(result.isPresent());
         verify(userRepository, times(1)).findById(999L);
@@ -100,29 +117,29 @@ class UserServiceTest {
     @Test
     @DisplayName("Test 5: createUser() - Doit créer un utilisateur valide")
     void createUser_WithValidUser_ShouldCreateUser() {
-        when(userRepository.existsByEmail(validUser.getEmail())).thenReturn(false);
+        when(userRepository.existsByEmail(createUserDto.getEmail())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(validUser);
 
-        User createdUser = userService.createUser(validUser);
+        UserDto createdUser = userService.createUser(createUserDto);
 
         assertNotNull(createdUser);
-        assertEquals(validUser.getName(), createdUser.getName());
-        assertEquals(validUser.getEmail(), createdUser.getEmail());
-        verify(userRepository, times(1)).existsByEmail(validUser.getEmail());
-        verify(userRepository, times(1)).save(validUser);
+        assertEquals(validUserDto.getName(), createdUser.getName());
+        assertEquals(validUserDto.getEmail(), createdUser.getEmail());
+        verify(userRepository, times(1)).existsByEmail(createUserDto.getEmail());
+        verify(userRepository, times(1)).save(any(User.class));
     }
 
     @Test
     @DisplayName("Test 6: createUser() - Doit lever une exception si l'email existe déjà")
     void createUser_WithExistingEmail_ShouldThrowDataIntegrityViolationException() {
-        when(userRepository.existsByEmail(validUser.getEmail())).thenReturn(true);
+        when(userRepository.existsByEmail(createUserDto.getEmail())).thenReturn(true);
         DataIntegrityViolationException exception = assertThrows(
             DataIntegrityViolationException.class,
-            () -> userService.createUser(validUser)
+            () -> userService.createUser(createUserDto)
         );
         
         assertTrue(exception.getMessage().contains("existe déjà"));
-        verify(userRepository, times(1)).existsByEmail(validUser.getEmail());
+        verify(userRepository, times(1)).existsByEmail(createUserDto.getEmail());
         verify(userRepository, never()).save(any());
     }
 
@@ -130,21 +147,22 @@ class UserServiceTest {
     @DisplayName("Test 7: updateUser() - Doit mettre à jour un utilisateur existant")
     void updateUser_WithValidUser_ShouldUpdateUser() {
         User updatedUser = new User();
+        updatedUser.setId(1L);
         updatedUser.setName("John Updated");
         updatedUser.setEmail("john.updated@example.com");
         updatedUser.setPassword("newpassword123");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(validUser));
-        when(userRepository.existsByEmail(updatedUser.getEmail())).thenReturn(false);
+        when(userRepository.existsByEmail(updateUserDto.getEmail())).thenReturn(false);
         when(userRepository.save(any(User.class))).thenReturn(updatedUser);
 
-        User result = userService.updateUser(1L, updatedUser);
+        UserDto result = userService.updateUser(1L, updateUserDto);
 
         assertNotNull(result);
-        assertEquals(updatedUser.getName(), result.getName());
-        assertEquals(updatedUser.getEmail(), result.getEmail());
+        assertEquals(updateUserDto.getName(), result.getName());
+        assertEquals(updateUserDto.getEmail(), result.getEmail());
         verify(userRepository, times(1)).findById(1L);
-        verify(userRepository, times(1)).existsByEmail(updatedUser.getEmail());
+        verify(userRepository, times(1)).existsByEmail(updateUserDto.getEmail());
         verify(userRepository, times(1)).save(any(User.class));
     }
 
@@ -155,7 +173,7 @@ class UserServiceTest {
 
         ObjectNotFoundException exception = assertThrows(
             ObjectNotFoundException.class,
-            () -> userService.updateUser(999L, validUser)
+            () -> userService.updateUser(999L, updateUserDto)
         );
         
         assertTrue(exception.getMessage().contains("non trouvé"));
@@ -195,10 +213,12 @@ class UserServiceTest {
     void getUserByEmail_WithValidEmail_ShouldReturnUser() {
         when(userRepository.findByEmail(validUser.getEmail())).thenReturn(Optional.of(validUser));
 
-        Optional<User> result = userService.getUserByEmail(validUser.getEmail());
+        Optional<UserDto> result = userService.getUserByEmail(validUser.getEmail());
 
         assertTrue(result.isPresent());
-        assertEquals(validUser, result.get());
+        assertEquals(validUserDto.getId(), result.get().getId());
+        assertEquals(validUserDto.getName(), result.get().getName());
+        assertEquals(validUserDto.getEmail(), result.get().getEmail());
         verify(userRepository, times(1)).findByEmail(validUser.getEmail());
     }
 
@@ -254,17 +274,14 @@ class UserServiceTest {
         existingUser.setEmail("john.doe@example.com");
         existingUser.setPassword("password123");
 
-        User updatedUser = new User();
-        updatedUser.setName("John Updated");
-        updatedUser.setEmail("jane.smith@example.com");
-        updatedUser.setPassword("newpassword123");
+        UpdateUserDto updateUserDto = new UpdateUserDto("John Updated", "jane.smith@example.com", "newpassword123");
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(existingUser));
         when(userRepository.existsByEmail("jane.smith@example.com")).thenReturn(true);
 
         DataIntegrityViolationException exception = assertThrows(
             DataIntegrityViolationException.class,
-            () -> userService.updateUser(1L, updatedUser)
+            () -> userService.updateUser(1L, updateUserDto)
         );
         
         assertTrue(exception.getMessage().contains("existe déjà"));
@@ -286,10 +303,7 @@ class UserServiceTest {
     @Test
     @DisplayName("Test 17: Validation des données - Doit lever une exception pour un nom vide")
     void createUser_WithEmptyName_ShouldThrowIllegalArgumentException() {       
-        User invalidUser = new User();
-        invalidUser.setName("");
-        invalidUser.setEmail("test@example.com");
-        invalidUser.setPassword("password123");
+        CreateUserDto invalidUser = new CreateUserDto("", "test@example.com", "password123");
 
         assertThrows(IllegalArgumentException.class, () -> {
             userService.createUser(invalidUser);
@@ -301,10 +315,7 @@ class UserServiceTest {
     @Test
     @DisplayName("Test 18: Validation des données - Doit lever une exception pour un email sans .com")
     void createUser_WithInvalidEmail_ShouldThrowIllegalArgumentException() {
-        User invalidUser = new User();
-        invalidUser.setName("John Doe");
-        invalidUser.setEmail("john.doe@example.org");
-        invalidUser.setPassword("password123");
+        CreateUserDto invalidUser = new CreateUserDto("John Doe", "john.doe@example.org", "password123");
 
         assertThrows(IllegalArgumentException.class, () -> {
             userService.createUser(invalidUser);

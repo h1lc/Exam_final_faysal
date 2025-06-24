@@ -1,6 +1,8 @@
 package com.example.methodo_de_test_eval.controller;
 
-import com.example.methodo_de_test_eval.entity.User;
+import com.example.methodo_de_test_eval.dto.CreateUserDto;
+import com.example.methodo_de_test_eval.dto.UpdateUserDto;
+import com.example.methodo_de_test_eval.dto.UserDto;
 import com.example.methodo_de_test_eval.exception.DataIntegrityViolationException;
 import com.example.methodo_de_test_eval.exception.ObjectNotFoundException;
 import com.example.methodo_de_test_eval.service.UserService;
@@ -28,24 +30,24 @@ public class UserController {
 
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<UserDto> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
     }
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        Optional<User> user = userService.getUserById(id);
+    public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
+        Optional<UserDto> user = userService.getUserById(id);
         return user.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
 
     @PostMapping
-    public ResponseEntity<?> createUser(@Valid @RequestBody User user) {
+    public ResponseEntity<?> createUser(@Valid @RequestBody CreateUserDto createUserDto) {
         try {
-            User createdUser = userService.createUser(user);
+            UserDto createdUser = userService.createUser(createUserDto);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
         } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
@@ -56,9 +58,9 @@ public class UserController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody User userDetails) {
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @Valid @RequestBody UpdateUserDto updateUserDto) {
         try {
-            User updatedUser = userService.updateUser(id, userDetails);
+            UserDto updatedUser = userService.updateUser(id, updateUserDto);
             return ResponseEntity.ok(updatedUser);
         } catch (ObjectNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -84,8 +86,8 @@ public class UserController {
 
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<User> getUserByEmail(@PathVariable String email) {
-        Optional<User> user = userService.getUserByEmail(email);
+    public ResponseEntity<UserDto> getUserByEmail(@PathVariable String email) {
+        Optional<UserDto> user = userService.getUserByEmail(email);
         return user.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
