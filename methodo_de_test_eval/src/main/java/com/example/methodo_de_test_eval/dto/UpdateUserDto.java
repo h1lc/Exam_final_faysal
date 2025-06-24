@@ -75,7 +75,7 @@ public class UpdateUserDto {
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode() { 
         return Objects.hash(name, email, password);
     }
 } 
