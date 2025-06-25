@@ -223,6 +223,8 @@ public class WebController {
         Employee employee = employeeService.getEmployeeById(id)
                 .orElseThrow(() -> new RuntimeException("Employé non trouvé"));
         model.addAttribute("employee", employee);
+        model.addAttribute("totalEmployees", employeeService.getAllEmployees().size());
+        model.addAttribute("totalCandidates", candidateService.getAllCandidates().size());
         return "employees/view";
     }
 
@@ -437,6 +439,8 @@ public class WebController {
         Candidate candidate = candidateService.getCandidateById(id)
                 .orElseThrow(() -> new RuntimeException("Candidat non trouvé"));
         model.addAttribute("candidate", candidate);
+        model.addAttribute("totalEmployees", employeeService.getAllEmployees().size());
+        model.addAttribute("totalCandidates", candidateService.getAllCandidates().size());
         return "candidates/view";
     }
 

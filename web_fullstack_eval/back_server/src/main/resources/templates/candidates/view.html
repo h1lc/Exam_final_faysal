@@ -3,283 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${candidate.nom + ' ' + candidate.prenom + ' - Détails candidat'}">Détails candidat - Gestion RH</title>
-    <th:block th:replace="~{layout :: head}"></th:block>
+    <title th:text="${candidate.name + ' - Détails candidat'}">Détails candidat - Gestion RH</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <div th:replace="~{layout :: body}">
-        <div th:fragment="content">
-            <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 class="h3 mb-0">
-                        <i class="fas fa-user-graduate me-2 text-success"></i>
-                        Détails du candidat
-                    </h1>
-                    <p class="text-muted mb-0">
-                        <span th:text="${candidate.nom + ' ' + candidate.prenom}">Nom Prénom</span>
-                    </p>
-                </div>
-                <div>
-                    <a href="/candidates" class="btn btn-outline-secondary me-2">
-                        <i class="fas fa-arrow-left me-2"></i>
-                        Retour à la liste
-                    </a>
-                    <a th:href="@{/candidates/{id}/edit(id=${candidate.id})}" class="btn btn-warning me-2">
-                        <i class="fas fa-edit me-2"></i>
-                        Modifier
-                    </a>
-                    <form th:action="@{/candidates/{id}/delete(id=${candidate.id})}" 
-                          method="post" 
-                          style="display: inline;"
-                          onsubmit="return confirmDelete('Êtes-vous sûr de vouloir supprimer ce candidat ?')">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-trash me-2"></i>
-                            Supprimer
-                        </button>
-                    </form>
-                </div>
+    <div class="container mt-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-user-graduate me-2 text-success"></i>
+                    Détails du candidat
+                </h1>
+                <p class="text-muted mb-0">
+                    <span th:text="${candidate.name}">Nom</span>
+                </p>
             </div>
+            <div>
+                <a href="/candidates" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Retour à la liste
+                </a>
+                <a th:href="@{/candidates/{id}/edit(id=${candidate.id})}" class="btn btn-warning me-2">
+                    <i class="fas fa-edit me-2"></i>
+                    Modifier
+                </a>
+                <form th:action="@{/candidates/{id}/delete(id=${candidate.id})}" 
+                      method="post" 
+                      style="display: inline;"
+                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce candidat ?')">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>
+                        Supprimer
+                    </button>
+                </form>
+            </div>
+        </div>
 
-            <div class="row">
-                <!-- Candidate Details -->
-                <div class="col-lg-8">
-                    <!-- Personal Information Card -->
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white border-0">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-user me-2 text-success"></i>
-                                Informations personnelles
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label text-muted">Nom</label>
-                                    <p class="form-control-plaintext fw-bold" th:text="${candidate.nom}">Nom</p>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label text-muted">Prénom</label>
-                                    <p class="form-control-plaintext fw-bold" th:text="${candidate.prenom}">Prénom</p>
-                                </div>
+        <div class="row">
+            <!-- Candidate Details -->
+            <div class="col-lg-8">
+                <!-- Personal Information Card -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-user me-2 text-success"></i>
+                            Informations personnelles
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">Nom complet</label>
+                                <p class="form-control-plaintext fw-bold" th:text="${candidate.name}">Nom</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">Numéro d'identification</label>
+                                <p class="form-control-plaintext fw-bold" th:text="${candidate.numeroIdentification}">ID</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">Date de naissance</label>
+                                <p class="form-control-plaintext" th:if="${candidate.dateNaissance != null}" th:text="${#temporals.format(candidate.dateNaissance, 'dd/MM/yyyy')}">01/01/1990</p>
+                                <p class="form-control-plaintext" th:unless="${candidate.dateNaissance != null}">Non renseignée</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">Date d'entretien</label>
+                                <p class="form-control-plaintext" th:if="${candidate.dateEntretien != null}" th:text="${#temporals.format(candidate.dateEntretien, 'dd/MM/yyyy')}">01/01/2024</p>
+                                <p class="form-control-plaintext" th:unless="${candidate.dateEntretien != null}">Non renseignée</p>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label text-muted">Adresse</label>
+                                <p class="form-control-plaintext" th:text="${candidate.address}">Adresse</p>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Contact Information Card -->
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white border-0">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-address-book me-2 text-primary"></i>
-                                Informations de contact
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label text-muted">Email</label>
-                                    <p class="form-control-plaintext">
-                                        <a th:href="'mailto:' + ${candidate.email}" class="text-decoration-none">
-                                            <i class="fas fa-envelope me-2 text-primary"></i>
-                                            <span th:text="${candidate.email}">email@example.com</span>
-                                        </a>
-                                    </p>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label text-muted">Téléphone</label>
-                                    <p class="form-control-plaintext">
-                                        <a th:href="'tel:' + ${candidate.telephone}" class="text-decoration-none">
-                                            <i class="fas fa-phone me-2 text-success"></i>
-                                            <span th:text="${candidate.telephone}">+33 1 23 45 67 89</span>
-                                        </a>
-                                    </p>
-                                </div>
+                <!-- Contact Information Card -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-address-book me-2 text-primary"></i>
+                            Informations de contact
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">Email</label>
+                                <p class="form-control-plaintext">
+                                    <a th:href="'mailto:' + ${candidate.email}" class="text-decoration-none">
+                                        <i class="fas fa-envelope me-2 text-primary"></i>
+                                        <span th:text="${candidate.email}">email@example.com</span>
+                                    </a>
+                                </p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">Téléphone</label>
+                                <p class="form-control-plaintext">
+                                    <a th:href="'tel:' + ${candidate.telephone}" class="text-decoration-none">
+                                        <i class="fas fa-phone me-2 text-success"></i>
+                                        <span th:text="${candidate.telephone}">+33 1 23 45 67 89</span>
+                                    </a>
+                                </p>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Professional Information Card -->
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white border-0">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-briefcase me-2 text-info"></i>
-                                Informations professionnelles
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label text-muted">Spécialité</label>
-                                    <p class="form-control-plaintext">
-                                        <span class="badge bg-info fs-6" th:text="${candidate.specialite}">Spécialité</span>
-                                    </p>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label text-muted">Expérience</label>
-                                    <p class="form-control-plaintext">
-                                        <span class="fw-bold text-primary fs-5" th:text="${candidate.experience + ' ans'}">3 ans</span>
-                                    </p>
-                                </div>
+                <!-- Professional Information Card -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-briefcase me-2 text-info"></i>
+                            Informations professionnelles
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">Spécialité</label>
+                                <p class="form-control-plaintext">
+                                    <span class="badge bg-info fs-6" th:text="${candidate.specialite}">Spécialité</span>
+                                </p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">Note</label>
+                                <p class="form-control-plaintext">
+                                    <span class="fw-bold text-primary fs-5" th:text="${candidate.note + '/10'}">8/10</span>
+                                </p>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Evaluation Card -->
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white border-0">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-star me-2 text-warning"></i>
-                                Évaluation
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label text-muted">Note</label>
-                                    <div class="d-flex align-items-center">
-                                        <span class="badge fs-5 me-3" 
-                                              th:classappend="${candidate.note >= 16 ? 'bg-success' : (candidate.note >= 12 ? 'bg-warning' : 'bg-danger')}"
-                                              th:text="${candidate.note + '/20'}">15/20</span>
-                                        <div class="progress flex-grow-1" style="height: 20px;">
-                                            <div class="progress-bar" 
-                                                 th:classappend="${candidate.note >= 16 ? 'bg-success' : (candidate.note >= 12 ? 'bg-warning' : 'bg-danger')}"
-                                                 th:style="'width: ' + ${candidate.note * 5} + '%'">
-                                                <span th:text="${candidate.note + '/20'}">15/20</span>
-                                            </div>
+                <!-- Evaluation Card -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-star me-2 text-warning"></i>
+                            Évaluation
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">Note</label>
+                                <div class="d-flex align-items-center">
+                                    <span class="badge fs-5 me-3" 
+                                          th:classappend="${candidate.note >= 8 ? 'bg-success' : (candidate.note >= 6 ? 'bg-warning' : 'bg-danger')}"
+                                          th:text="${candidate.note + '/10'}">8/10</span>
+                                    <div class="progress flex-grow-1" style="height: 20px;">
+                                        <div class="progress-bar" 
+                                             th:classappend="${candidate.note >= 8 ? 'bg-success' : (candidate.note >= 6 ? 'bg-warning' : 'bg-danger')}"
+                                             th:style="'width: ' + ${candidate.note * 10} + '%'">
+                                            <span th:text="${candidate.note + '/10'}">8/10</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label text-muted">Niveau</label>
-                                    <p class="form-control-plaintext">
-                                        <span class="badge" 
-                                              th:classappend="${candidate.note >= 16 ? 'bg-success' : (candidate.note >= 12 ? 'bg-warning' : 'bg-danger')}"
-                                              th:text="${candidate.note >= 16 ? 'Excellent' : (candidate.note >= 12 ? 'Bon' : 'À améliorer')}">
-                                            Niveau
-                                        </span>
-                                    </p>
-                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sidebar -->
-                <div class="col-lg-4">
-                    <!-- Candidate ID Card -->
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white border-0">
-                            <h6 class="card-title mb-0">
-                                <i class="fas fa-id-card me-2 text-info"></i>
-                                Identifiant
-                            </h6>
-                        </div>
-                        <div class="card-body text-center">
-                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
-                                 style="width: 80px; height: 80px;">
-                                <span class="h4 mb-0 text-success" th:text="${candidate.id}">1</span>
-                            </div>
-                            <p class="text-muted mb-0">ID Candidat</p>
-                        </div>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div class="card border-0 shadow-sm mb-4">
-                        <div class="card-header bg-white border-0">
-                            <h6 class="card-title mb-0">
-                                <i class="fas fa-bolt me-2 text-warning"></i>
-                                Actions rapides
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a th:href="@{/candidates/{id}/edit(id=${candidate.id})}" class="btn btn-outline-warning">
-                                    <i class="fas fa-edit me-2"></i>
-                                    Modifier
-                                </a>
-                                <a th:href="'mailto:' + ${candidate.email}" class="btn btn-outline-primary">
-                                    <i class="fas fa-envelope me-2"></i>
-                                    Envoyer un email
-                                </a>
-                                <a th:href="'tel:' + ${candidate.telephone}" class="btn btn-outline-success">
-                                    <i class="fas fa-phone me-2"></i>
-                                    Appeler
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Statistics -->
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white border-0">
-                            <h6 class="card-title mb-0">
-                                <i class="fas fa-chart-bar me-2 text-info"></i>
-                                Statistiques
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <div class="row text-center">
-                                <div class="col-6">
-                                    <h5 class="text-primary mb-1" th:text="${totalEmployees}">0</h5>
-                                    <small class="text-muted">Total employés</small>
-                                </div>
-                                <div class="col-6">
-                                    <h5 class="text-success mb-1" th:text="${totalCandidates}">0</h5>
-                                    <small class="text-muted">Total candidats</small>
-                                </div>
-                            </div>
-                            <hr>
-                            <div class="text-center">
-                                <h6 class="text-muted mb-2">Note moyenne</h6>
-                                <h4 class="text-info mb-0" th:text="${averageNote} + '/20'">15/20</h4>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted">Niveau</label>
+                                <p class="form-control-plaintext">
+                                    <span class="badge" 
+                                          th:classappend="${candidate.note >= 8 ? 'bg-success' : (candidate.note >= 6 ? 'bg-warning' : 'bg-danger')}"
+                                          th:text="${candidate.note >= 8 ? 'Excellent' : (candidate.note >= 6 ? 'Bon' : 'À améliorer')}">
+                                        Niveau
+                                    </span>
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Related Information -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white border-0">
-                            <h5 class="card-title mb-0">
-                                <i class="fas fa-link me-2 text-info"></i>
-                                Informations liées
-                            </h5>
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Candidate ID Card -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-id-card me-2 text-info"></i>
+                            Identifiant
+                        </h6>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" 
+                             style="width: 80px; height: 80px;">
+                            <span class="h4 mb-0 text-success" th:text="${candidate.id}">1</span>
                         </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="text-center p-3">
-                                        <i class="fas fa-user-graduate fa-2x text-success mb-2"></i>
-                                        <h6>Candidats</h6>
-                                        <p class="text-muted mb-0">Voir tous les candidats</p>
-                                        <a href="/candidates" class="btn btn-sm btn-outline-success mt-2">
-                                            Voir les candidats
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="text-center p-3">
-                                        <i class="fas fa-user-tie fa-2x text-primary mb-2"></i>
-                                        <h6>Employés</h6>
-                                        <p class="text-muted mb-0">Gérer les employés</p>
-                                        <a href="/employees" class="btn btn-sm btn-outline-primary mt-2">
-                                            Voir les employés
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="text-center p-3">
-                                        <i class="fas fa-chart-line fa-2x text-warning mb-2"></i>
-                                        <h6>Statistiques</h6>
-                                        <p class="text-muted mb-0">Analyser les données</p>
-                                        <a href="/statistics" class="btn btn-sm btn-outline-warning mt-2">
-                                            Voir les stats
-                                        </a>
-                                    </div>
-                                </div>
+                        <p class="text-muted mb-0">ID Candidat</p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-bolt me-2 text-warning"></i>
+                            Actions rapides
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/candidates/{id}/edit(id=${candidate.id})}" class="btn btn-outline-warning">
+                                <i class="fas fa-edit me-2"></i>
+                                Modifier
+                            </a>
+                            <a th:href="'mailto:' + ${candidate.email}" class="btn btn-outline-primary">
+                                <i class="fas fa-envelope me-2"></i>
+                                Envoyer un email
+                            </a>
+                            <a th:href="'tel:' + ${candidate.telephone}" class="btn btn-outline-success">
+                                <i class="fas fa-phone me-2"></i>
+                                Appeler
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0">
+                        <h6 class="card-title mb-0">
+                            <i class="fas fa-chart-bar me-2 text-info"></i>
+                            Statistiques
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6">
+                                <h5 class="text-primary mb-1" th:text="${totalEmployees}">0</h5>
+                                <small class="text-muted">Total employés</small>
+                            </div>
+                            <div class="col-6">
+                                <h5 class="text-success mb-1" th:text="${totalCandidates}">0</h5>
+                                <small class="text-muted">Total candidats</small>
                             </div>
                         </div>
                     </div>
@@ -287,5 +250,8 @@
             </div>
         </div>
     </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html> 
