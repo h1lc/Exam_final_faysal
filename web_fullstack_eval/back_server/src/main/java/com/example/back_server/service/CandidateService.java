@@ -21,12 +21,10 @@ public class CandidateService {
      * Créer un nouveau candidat
      */
     public Candidate createCandidate(Candidate candidate) {
-        // Vérifier si l'email existe déjà
         if (candidateRepository.existsByEmail(candidate.getEmail())) {
             throw new RuntimeException("Un candidat avec cet email existe déjà");
         }
         
-        // Vérifier si le numéro d'identification existe déjà
         if (candidateRepository.existsByNumeroIdentification(candidate.getNumeroIdentification())) {
             throw new RuntimeException("Un candidat avec ce numéro d'identification existe déjà");
         }
@@ -57,7 +55,6 @@ public class CandidateService {
         Candidate candidate = candidateRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Candidat non trouvé avec l'ID: " + id));
 
-        // Vérifier si le nouvel email existe déjà (sauf pour le candidat actuel)
         if (!candidate.getEmail().equals(candidateDetails.getEmail()) && 
             candidateRepository.existsByEmail(candidateDetails.getEmail())) {
             throw new RuntimeException("Un candidat avec cet email existe déjà");

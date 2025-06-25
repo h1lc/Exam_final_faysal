@@ -75,7 +75,7 @@ public class Employee {
     @Temporal(TemporalType.TIMESTAMP)
     private java.time.LocalDateTime updatedAt;
 
-    // Champs temporaires pour le formulaire (non persistés)
+
     @Transient
     private String numeroIdentificationStr;
     

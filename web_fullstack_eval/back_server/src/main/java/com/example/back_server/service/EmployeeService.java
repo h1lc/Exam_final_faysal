@@ -21,12 +21,11 @@ public class EmployeeService {
      * Créer un nouvel employé
      */
     public Employee createEmployee(Employee employee) {
-        // Vérifier si l'email existe déjà
+        
         if (employeeRepository.existsByEmail(employee.getEmail())) {
             throw new RuntimeException("Un employé avec cet email existe déjà");
         }
         
-        // Vérifier si le numéro d'identification existe déjà
         if (employeeRepository.existsByNumeroIdentification(employee.getNumeroIdentification())) {
             throw new RuntimeException("Un employé avec ce numéro d'identification existe déjà");
         }
@@ -57,19 +56,19 @@ public class EmployeeService {
         Employee employee = employeeRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Employé non trouvé avec l'ID: " + id));
 
-        // Vérifier si le nouvel email existe déjà (sauf pour l'employé actuel)
+        
         if (!employee.getEmail().equals(employeeDetails.getEmail()) && 
             employeeRepository.existsByEmail(employeeDetails.getEmail())) {
             throw new RuntimeException("Un employé avec cet email existe déjà");
         }
 
-        // Vérifier si le nouveau numéro d'identification existe déjà (sauf pour l'employé actuel)
+        
         if (!employee.getNumeroIdentification().equals(employeeDetails.getNumeroIdentification()) && 
             employeeRepository.existsByNumeroIdentification(employeeDetails.getNumeroIdentification())) {
             throw new RuntimeException("Un employé avec ce numéro d'identification existe déjà");
         }
 
-        // Mettre à jour les champs
+            
         employee.setName(employeeDetails.getName());
         employee.setPoste(employeeDetails.getPoste());
         employee.setDebutContrat(employeeDetails.getDebutContrat());
