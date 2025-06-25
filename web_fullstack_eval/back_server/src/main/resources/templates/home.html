@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord - Gestion RH</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.8);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin: 0.25rem 0;
+        }
+        .sidebar .nav-link:hover {
+            color: white;
+            background-color: rgba(255,255,255,0.1);
+        }
+        .sidebar .nav-link.active {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+        }
+        .main-content {
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.5rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+        
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="text-center mb-4">
+                        <h4 class="text-white fw-bold">
+                            <i class="fas fa-users me-2"></i>
+                            Gestion RH
+                        </h4>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/dashboard">
+                                <i class="fas fa-home me-2"></i>
+                                Accueil
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/employees">
+                                <i class="fas fa-user-tie me-2"></i>
+                                Employés
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/candidates">
+                                <i class="fas fa-user-graduate me-2"></i>
+                                Candidats
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
+                <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+                    <div class="container-fluid">
+                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".sidebar">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <span class="navbar-brand mb-0 h1">Tableau de bord</span>
+                        <div class="navbar-nav ms-auto">
+                            <span class="navbar-text">
+                                <i class="fas fa-clock me-1"></i>
+                                <span th:text="${#dates.format(#dates.createNow(), 'dd/MM/yyyy HH:mm')}">Date</span>
+                            </span>
+                        </div>
+                    </div>
+                </nav>
+
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card bg-gradient-primary text-white">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h1 class="card-title mb-3">
+                                            <i class="fas fa-chart-line me-3"></i>
+                                            Tableau de bord
+                                        </h1>
+                                        <p class="card-text lead">
+                                            Bienvenue dans votre système de gestion des ressources humaines. 
+                                            Gérez vos employés et candidats en toute simplicité.
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4 text-center">
+                                        <i class="fas fa-users fa-4x opacity-75"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6 col-lg-6 mb-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 rounded-circle mb-3" style="width: 60px; height: 60px;">
+                                    <i class="fas fa-user-tie fa-2x text-primary"></i>
+                                </div>
+                                <h3 class="card-title text-primary mb-2" th:text="${totalEmployees}">0</h3>
+                                <p class="card-text text-muted">Employés</p>
+                                <a href="/employees" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>
+                                    Voir tous
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 col-lg-6 mb-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <div class="d-inline-flex align-items-center justify-content-center bg-success bg-opacity-10 rounded-circle mb-3" style="width: 60px; height: 60px;">
+                                    <i class="fas fa-user-graduate fa-2x text-success"></i>
+                                </div>
+                                <h3 class="card-title text-success mb-2" th:text="${totalCandidates}">0</h3>
+                                <p class="card-text text-muted">Candidats</p>
+                                <a href="/candidates" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-eye me-1"></i>
+                                    Voir tous
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-0">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-bolt me-2 text-primary"></i>
+                                    Actions rapides
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="d-grid">
+                                            <a href="/employees/new" class="btn btn-primary btn-lg">
+                                                <i class="fas fa-plus me-2"></i>
+                                                Ajouter un employé
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="d-grid">
+                                            <a href="/candidates/new" class="btn btn-success btn-lg">
+                                                <i class="fas fa-plus me-2"></i>
+                                                Ajouter un candidat
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white border-0">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-user-tie me-2 text-primary"></i>
+                                    Gestion des employés
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">Gérez vos employés actuels :</p>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-list me-2 text-primary"></i>
+                                        <a href="/employees" class="text-decoration-none">Voir la liste des employés</a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-plus me-2 text-primary"></i>
+                                        <a href="/employees/new" class="text-decoration-none">Ajouter un nouvel employé</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white border-0">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-user-graduate me-2 text-success"></i>
+                                    Gestion des candidats
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">Gérez vos candidats :</p>
+                                <ul class="list-unstyled">
+                                    <li class="mb-2">
+                                        <i class="fas fa-list me-2 text-success"></i>
+                                        <a href="/candidates" class="text-decoration-none">Voir la liste des candidats</a>
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="fas fa-plus me-2 text-success"></i>
+                                        <a href="/candidates/new" class="text-decoration-none">Ajouter un nouveau candidat</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-hide alerts after 5 seconds
+        setTimeout(function() {
+            var alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                var bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+
+        function confirmDelete(message) {
+            return confirm(message || 'Êtes-vous sûr de vouloir supprimer cet élément ?');
+        }
+    </script>
+</body>
+</html> 
